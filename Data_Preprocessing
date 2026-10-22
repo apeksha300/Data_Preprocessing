@@ -1,0 +1,108 @@
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+data = {
+    "Name": ["Apeksha", "Falak", "Yukti", "Rishabh", "Granth", "Viram"],
+    "Age": [19, 20, np.nan, 21, 20, 20],
+    "Study_Hours": [4, np.nan, 6, 3, 5, np.nan],
+    "Attendance": [90, 75, 85, np.nan, 95, 75],
+    "Marks": [85, 70, 92, np.nan, 88, 70],
+    "Result": ["Pass", "Pass", "Pass", "Fail", "Pass", "Pass"]
+}
+
+df = pd.DataFrame(data)
+
+print("\nORIGINAL DATASET:")
+display(df)
+
+
+print("\nStatistical summary:")
+display(df.describe())
+
+clean_df = df.copy()
+
+numeric_columns = ["Age", "Study_Hours", "Attendance", "Marks"]
+
+for column in numeric_columns:
+    clean_df[column] = clean_df[column].fillna(
+        clean_df[column].median()
+    )
+
+
+
+print("\nCLEANED DATASET:")
+display(clean_df)
+
+print("\nAverage marks:", round(clean_df["Marks"].mean(), 2))
+print("Highest marks:", clean_df["Marks"].max())
+print("Lowest marks:", clean_df["Marks"].min())
+
+print("\nStudent result counts:")
+print(clean_df["Result"].value_counts())
+
+
+plt.figure(figsize=(7, 4))
+plt.hist(clean_df["Marks"], bins=5, edgecolor="black")
+plt.title("Distribution of Student Marks")
+plt.xlabel("Marks")
+plt.ylabel("Number of Students")
+plt.show()
+
+plt.figure(figsize=(7, 4))
+plt.scatter(clean_df["Study_Hours"], clean_df["Marks"])
+plt.title("Study Hours vs Marks")
+plt.xlabel("Study Hours")
+plt.ylabel("Marks")
+plt.show()
+
+X = clean_df[["Age", "Study_Hours", "Attendance"]]
+y = clean_df["Marks"]
+
+print("\nSelected features (X):")
+display(X)
+
+
+print("\nTarget variable (y):")
+display(y)
+
+
+encoded_df = clean_df.copy()
+
+encoded_df["Result"] = encoded_df["Result"].map({
+    "Fail": 0,
+    "Pass": 1
+})
+
+print("\nDataset after categorical encoding:")
+display(encoded_df)
+
+processed_df = encoded_df.copy()
+
+columns_to_scale = [
+    "Age", "Study_Hours", "Attendance", "Marks"
+]
+
+for column in columns_to_scale:
+    minimum = processed_df[column].min()
+    maximum = processed_df[column].max()
+
+    if maximum != minimum:
+        processed_df[column] = (
+            (processed_df[column] - minimum) /
+            (maximum - minimum)
+        )
+    else:
+        processed_df[column] = 0.0
+
+print("\nFINAL PREPROCESSED DATASET:")
+display(processed_df)
+
+
+print("\nFinal number of rows and columns:", processed_df.shape)
+
+
+print("\nNormalized numerical values should be between 0 and 1:")
+display(processed_df[columns_to_scale].agg(["min", "max"]))
